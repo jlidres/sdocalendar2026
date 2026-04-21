@@ -214,14 +214,13 @@ export default function Home() {
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-10">
       <section className="rounded-3xl border border-white/50 bg-white/90 p-6 shadow-sm backdrop-blur-md sm:p-8">
         <p className="text-sm font-medium uppercase tracking-[0.16em] text-amber-700">
-          Department of Education Philippines
+          DepED - SDO San Juan City
         </p>
         <h1 className="mt-2 text-2xl font-semibold text-zinc-900 sm:text-4xl">
-          School Calendar Dashboard (SY 2026-2027)
+          School Calendar 2026-2027
         </h1>
         <p className="mt-3 max-w-3xl text-sm text-zinc-700 sm:text-base">
-          Monitor term progress, key school dates, and upcoming end-of-term
-          blocks for the 3-term, 201-class-day school year.
+          Interactive visualization of the DepED - SDO San Juan City
         </p>
       </section>
 

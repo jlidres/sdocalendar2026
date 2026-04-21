@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "DepEd School Calendar SY 2026-2027",
-  description: "Interactive visualization of the Department of Education Philippines three-term school calendar for SY 2026-2027.",
+  description: "Interactive visualization of the DepED - SDO San Juan City three-term school calendar for SY 2026-2027.",
 };
 
 export default function RootLayout({
