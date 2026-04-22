@@ -95,6 +95,7 @@ async function seedDefaultsIfEmpty(): Promise<void> {
   const defaults = getDefaultSchoolEvents();
   await prisma.schoolEvent.createMany({
     data: defaults,
+    skipDuplicates: true,
   });
 }
 

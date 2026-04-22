@@ -18,4 +18,5 @@ model SchoolEvent {
 
   @@index([start])
   @@index([end])
+  @@unique([start, end, title])
 }
