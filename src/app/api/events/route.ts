@@ -16,7 +16,7 @@ export async function GET() {
     return NextResponse.json(
       {
         message:
-          error instanceof Error ? error.message : "Failed to load events from the database.",
+          error instanceof Error ? error.message : "Failed to load activities from the database.",
       },
       { status: 500 },
     );
@@ -30,7 +30,7 @@ export async function PUT(request: Request) {
 
     if (events.length === 0) {
       return NextResponse.json(
-        { message: "No valid events found in request payload." },
+        { message: "No valid activities found in request payload." },
         { status: 400 },
       );
     }
@@ -41,7 +41,7 @@ export async function PUT(request: Request) {
     return NextResponse.json(
       {
         message:
-          error instanceof Error ? error.message : "Failed to save events to the database.",
+          error instanceof Error ? error.message : "Failed to save activities to the database.",
       },
       { status: 500 },
     );
@@ -56,7 +56,7 @@ export async function DELETE() {
     return NextResponse.json(
       {
         message:
-          error instanceof Error ? error.message : "Failed to reset events in the database.",
+          error instanceof Error ? error.message : "Failed to reset activities in the database.",
       },
       { status: 500 },
     );

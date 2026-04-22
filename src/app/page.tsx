@@ -63,11 +63,14 @@ function getTimeLeft(target: Date, now: Date) {
 const BLOCK_COLORS: Record<BlockType, string> = {
   opening: "bg-yellow-100 text-yellow-900 border-yellow-300",
   instructional: "bg-green-100 text-green-900 border-green-300",
-  "end-of-term": "bg-orange-100 text-orange-900 border-orange-300",
+  "end-of-term": "bg-blue-100 text-blue-900 border-blue-300",
 };
 
-const HOLIDAY_COLORS = "bg-red-100 text-red-900 border-red-300";
-const EVENT_COLORS = "bg-blue-100 text-blue-900 border-blue-300";
+const BLOCK_RADIO_COLORS: Record<BlockType, string> = {
+  opening: "border-yellow-500 bg-yellow-500",
+  instructional: "border-green-500 bg-green-500",
+  "end-of-term": "border-blue-500 bg-blue-500",
+};
 
 export default function Home() {
   const [now, setNow] = useState(() => new Date("2026-01-01T00:00:00"));
@@ -78,7 +81,7 @@ export default function Home() {
     "end-of-term": true,
   });
   const [showHolidays, setShowHolidays] = useState(true);
-  const [showEvents, setShowEvents] = useState(true);
+  const showEvents = true;
   const [schoolEvents, setSchoolEvents] = useState(getDefaultSchoolEvents);
 
   useEffect(() => {
@@ -203,6 +206,34 @@ export default function Home() {
     [eventLookup],
   );
 
+  const currentMonthStart = useMemo(
+    () => new Date(now.getFullYear(), now.getMonth(), 1),
+    [now],
+  );
+
+  const upcomingEvents = useMemo(
+    () => listedEvents.filter((event) => event.endDate >= currentMonthStart),
+    [listedEvents, currentMonthStart],
+  );
+
+  const displayedUpcomingActivities = useMemo(
+    () => upcomingEvents.slice(0, 5),
+    [upcomingEvents],
+  );
+
+  const todayDate = useMemo(
+    () => new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+    [now],
+  );
+
+  const todayActivities = useMemo(
+    () =>
+      listedEvents.filter((event) =>
+        isWithinDateRange(todayDate, event.startDate, event.endDate),
+      ),
+    [listedEvents, todayDate],
+  );
+
   const formatDateKey = (date: Date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -217,10 +248,10 @@ export default function Home() {
           DepED - SDO San Juan City
         </p>
         <h1 className="mt-2 text-2xl font-semibold text-zinc-900 sm:text-4xl">
-          School Calendar 2026-2027
+          Interactive School Calendar
         </h1>
         <p className="mt-3 max-w-3xl text-sm text-zinc-700 sm:text-base">
-          Interactive visualization of the DepED - SDO San Juan City
+          SY 2026-2027
         </p>
       </section>
 
@@ -262,93 +293,65 @@ export default function Home() {
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
-        <h2 className="text-lg font-semibold text-zinc-900">Block Filters</h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          Toggle calendar highlights by block classification.
-        </p>
-
-        <div className="mt-4 flex flex-nowrap gap-2 overflow-x-auto pb-1">
-          {(
-            [
-              ["opening", "Opening (Yellow)"],
-              ["instructional", "Instructional (Green)"],
-              ["end-of-term", "End-of-Term (Orange)"],
-            ] as const
-          ).map(([key, label]) => (
-            <label
-              key={key}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-zinc-200 px-3 py-2"
-            >
-              <span className="text-sm text-zinc-800">{label}</span>
-              <input
-                type="checkbox"
-                checked={filters[key]}
-                onChange={(event) =>
-                  setFilters((prev) => ({ ...prev, [key]: event.target.checked }))
-                }
-                className="h-4 w-4 accent-zinc-900"
-                aria-label={label}
-              />
-            </label>
-          ))}
-
-          <label className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-zinc-200 px-3 py-2">
-            <span className="text-sm text-zinc-800">Holidays (Red)</span>
-            <input
-              type="checkbox"
-              checked={showHolidays}
-              onChange={(event) => setShowHolidays(event.target.checked)}
-              className="h-4 w-4 accent-red-700"
-              aria-label="Show National Holidays"
-            />
-          </label>
-
-          <label className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-zinc-200 px-3 py-2">
-            <span className="text-sm text-zinc-800">Events (Blue)</span>
-            <input
-              type="checkbox"
-              checked={showEvents}
-              onChange={(event) => setShowEvents(event.target.checked)}
-              className="h-4 w-4 accent-blue-700"
-              aria-label="Show School Events"
-            />
-          </label>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-semibold text-zinc-900">Admin Controls</h2>
             <p className="text-sm text-zinc-600">
-              Manage custom events from the admin page.
+              Manage custom activities from the admin page.
             </p>
           </div>
           <Link
             href="/admin"
             className="inline-flex items-center justify-center rounded-lg border border-zinc-300 bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800"
           >
-            Open Admin Event Editor
+            Open Admin Activity Editor
           </Link>
         </div>
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900">All School Events</h2>
-          <p className="text-sm text-zinc-600">{listedEvents.length} total event(s)</p>
+        <div className="rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-3">
+          <h3 className="text-sm font-semibold text-amber-900">Today&apos;s Activity</h3>
+
+          {todayActivities.length === 0 ? (
+            <p className="mt-1 text-sm text-amber-800">No activity scheduled for today.</p>
+          ) : (
+            <div className="mt-2 space-y-2">
+              {todayActivities.map((item) => {
+                const isSingleDay = item.startDate.getTime() === item.endDate.getTime();
+
+                return (
+                  <article
+                    key={`today-${item.title}-${item.startDate.toISOString()}-${item.endDate.toISOString()}`}
+                    className="rounded-lg border border-amber-200 bg-white px-3 py-2"
+                  >
+                    <p className="text-sm font-semibold text-zinc-900">{item.title}</p>
+                    <p className="text-xs text-zinc-600">
+                      {isSingleDay
+                        ? EVENT_DATE.format(item.startDate)
+                        : `${EVENT_DATE.format(item.startDate)} - ${EVENT_DATE.format(item.endDate)}`}
+                    </p>
+                    {item.notes ? <p className="mt-1 text-xs text-zinc-500">{item.notes}</p> : null}
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900">
-          Events are saved per browser origin. Data on localhost:3000 is separate from
-          192.168.21.138:3000.
-        </p>
+        <div className="mt-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-zinc-900">Upcoming Activities</h2>
+          <p className="text-sm text-zinc-600">
+            Showing {displayedUpcomingActivities.length} of {upcomingEvents.length} upcoming
+            activities
+          </p>
+        </div>
 
-        {listedEvents.length === 0 ? (
-          <p className="mt-3 text-sm text-zinc-600">No school events found.</p>
+        {displayedUpcomingActivities.length === 0 ? (
+          <p className="mt-3 text-sm text-zinc-600">No upcoming activities found.</p>
         ) : (
           <div className="mt-3 space-y-2">
-            {listedEvents.map((item) => {
+            {displayedUpcomingActivities.map((item) => {
               const isSingleDay =
                 item.startDate.getTime() === item.endDate.getTime();
 
@@ -374,8 +377,72 @@ export default function Home() {
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
-        <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900">Current Month Calendar</h2>
+        <h2 className="text-lg font-semibold text-zinc-900">Block Filters</h2>
+        <p className="mt-1 text-sm text-zinc-600">
+          Toggle calendar highlights by block classification.
+        </p>
+
+        <div className="mt-4 flex flex-nowrap gap-2 overflow-x-auto pb-1">
+          {(
+            [
+              ["opening", "Opening", "accent-yellow-500"],
+              ["instructional", "Instructional", "accent-green-500"],
+              ["end-of-term", "End-of-Term", "accent-blue-500"],
+            ] as const
+          ).map(([key, label, accentClass]) => (
+            <label
+              key={key}
+              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-zinc-200 px-3 py-2"
+            >
+              <span className="text-sm text-zinc-800">{label}</span>
+              <input
+                type="checkbox"
+                checked={filters[key]}
+                onChange={(event) =>
+                  setFilters((prev) => ({ ...prev, [key]: event.target.checked }))
+                }
+                className={`h-4 w-4 ${accentClass}`}
+                aria-label={label}
+              />
+            </label>
+          ))}
+
+          <label className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-zinc-200 px-3 py-2">
+            <span className="text-sm text-zinc-800">Holidays (Red)</span>
+            <input
+              type="checkbox"
+              checked={showHolidays}
+              onChange={(event) => setShowHolidays(event.target.checked)}
+              className="h-4 w-4 accent-red-700"
+              aria-label="Show National Holidays"
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-lg font-semibold text-zinc-900">Current Month Calendar</h2>
+            <div className="flex flex-wrap gap-x-4 gap-y-2">
+              <span className="inline-flex items-center gap-2 text-xs text-zinc-700">
+                <span className="inline-block h-3 w-3 rounded-full border-2 border-yellow-500 bg-yellow-500" />
+                Opening
+              </span>
+              <span className="inline-flex items-center gap-2 text-xs text-zinc-700">
+                <span className="inline-block h-3 w-3 rounded-full border-2 border-green-500 bg-green-500" />
+                Instructional
+              </span>
+              <span className="inline-flex items-center gap-2 text-xs text-zinc-700">
+                <span className="inline-block h-3 w-3 rounded-full border-2 border-blue-500 bg-blue-500" />
+                End-of-Term
+              </span>
+              <span className="inline-flex items-center gap-2 text-xs text-zinc-700">
+                <span className="inline-block h-3 w-3 rounded-full border-2 border-red-500 bg-red-500" />
+                Holiday
+              </span>
+            </div>
+          </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -442,31 +509,39 @@ export default function Home() {
             const hasEvents = matchedEvents.length > 0;
             const isWeekend = dateCell.getDay() === 0 || dateCell.getDay() === 6;
 
+            const radioIndicatorClass = isWeekend
+              ? null
+              : holiday
+              ? "border-red-500 bg-red-500"
+              : matchedBlock
+              ? BLOCK_RADIO_COLORS[matchedBlock.type]
+              : null;
+
             const dateKey = `${dateCell.getFullYear()}-${dateCell.getMonth()}-${dateCell.getDate()}`;
             const isToday = dateKey === todayKey;
 
             return (
               <div
                 key={dateCell.toISOString()}
-                className={`min-h-20 rounded-lg border p-2 sm:min-h-24 ${
-                  holiday
-                    ? HOLIDAY_COLORS
-                    : hasEvents
-                    ? EVENT_COLORS
-                    : isWeekend
-                    ? "border-zinc-200 bg-white text-zinc-800"
-                    : matchedBlock
-                    ? BLOCK_COLORS[matchedBlock.type]
-                    : "border-zinc-200 bg-white text-zinc-800"
+                className={`min-h-20 rounded-lg border border-zinc-200 p-2 text-zinc-800 sm:min-h-24 ${
+                  isWeekend ? "bg-zinc-50" : "bg-white"
                 } ${isToday ? "ring-2 ring-zinc-900/70" : ""}`}
               >
                 <div className="flex items-start justify-between gap-1">
                   <span className="text-sm font-semibold">{dateCell.getDate()}</span>
-                  {isToday ? (
-                    <span className="rounded-full bg-zinc-900 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                      Today
-                    </span>
-                  ) : null}
+                  <div className="flex items-center gap-1">
+                    {radioIndicatorClass ? (
+                      <span
+                        className={`inline-block h-3 w-3 rounded-full border-2 ${radioIndicatorClass}`}
+                        aria-label="Date marker"
+                      />
+                    ) : null}
+                    {isToday ? (
+                      <span className="rounded-full bg-zinc-900 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                        Today
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
 
                 {holiday ? (
@@ -481,7 +556,7 @@ export default function Home() {
                             key={`${item.title}-${item.startDate.toISOString()}-${item.endDate.toISOString()}`}
                             className="text-[10px] leading-4 sm:text-[11px]"
                           >
-                            Event: {item.title}
+                            Activity: {item.title}
                           </p>
                         ))}
                       </div>
@@ -495,24 +570,11 @@ export default function Home() {
                           key={`${item.title}-${item.startDate.toISOString()}-${item.endDate.toISOString()}`}
                           className="text-[11px] font-semibold leading-4 sm:text-xs"
                         >
-                          Event: {item.title}
+                          Activity: {item.title}
                         </p>
                       ))}
                     </div>
-                    {matchedBlock && !isWeekend ? (
-                      <p className="mt-1 text-[10px] leading-4 sm:text-[11px]">
-                        {matchedBlock.label}
-                      </p>
-                    ) : null}
                   </div>
-                ) : matchedBlock && !isWeekend ? (
-                  <p className="mt-2 text-[11px] font-medium leading-4 sm:text-xs">
-                    {matchedBlock.label}
-                  </p>
-                ) : !isWeekend ? (
-                  <p className="mt-2 text-[11px] leading-4 text-zinc-500 sm:text-xs">
-                    No tagged block
-                  </p>
                 ) : null}
               </div>
             );

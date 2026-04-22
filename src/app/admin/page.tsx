@@ -11,8 +11,10 @@ import {
 } from "@/lib/school-events-api";
 
 const ADMIN_AUTH_KEY = "deped-admin-auth";
-const ADMIN_USERNAME = process.env.NEXT_PUBLIC_ADMIN_USERNAME ?? "admin";
-const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "deped2026";
+const ADMIN_USERS = [
+  { username: "cid", password: "cid2026" },
+  { username: "sgod", password: "sgod2026" },
+];
 
 function sortEvents(events: SchoolEvent[]) {
   return [...events].sort((a, b) => {
@@ -120,7 +122,11 @@ export default function AdminPage() {
 
   const handleLogin = (event: React.FormEvent) => {
     event.preventDefault();
-    if (loginUser === ADMIN_USERNAME && loginPass === ADMIN_PASSWORD) {
+    const matchedUser = ADMIN_USERS.find(
+      (account) => account.username === loginUser && account.password === loginPass,
+    );
+
+    if (matchedUser) {
       window.sessionStorage.setItem(ADMIN_AUTH_KEY, "true");
       setIsLoggedIn(true);
       setLoginError("");
@@ -148,7 +154,7 @@ export default function AdminPage() {
     } catch (error) {
       setStatusVariant("error");
       setStatusMessage(
-        error instanceof Error ? error.message : "Failed to save events to the database.",
+        error instanceof Error ? error.message : "Failed to save activities to the database.",
       );
     }
   };
@@ -166,7 +172,7 @@ export default function AdminPage() {
     document.body.removeChild(anchor);
     window.URL.revokeObjectURL(url);
     setStatusVariant("success");
-    setStatusMessage(`Exported ${events.length} event(s).`);
+    setStatusMessage(`Exported ${events.length} activity/activities.`);
   };
 
   const importEvents = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,9 +188,9 @@ export default function AdminPage() {
 
       if (imported.length === 0) {
         setStatusVariant("error");
-        setStatusMessage("Import failed: no valid events found in the JSON file.");
+        setStatusMessage("Import failed: no valid activities found in the JSON file.");
       } else {
-        await saveAllEvents(imported, `Imported ${imported.length} event(s).`);
+        await saveAllEvents(imported, `Imported ${imported.length} activity/activities.`);
       }
     } catch {
       setStatusVariant("error");
@@ -209,7 +215,7 @@ export default function AdminPage() {
       },
     ];
 
-    void saveAllEvents(nextEvents, "Event added successfully.").then(() => {
+    void saveAllEvents(nextEvents, "Activity added successfully.").then(() => {
       setNewStart("");
       setNewEnd("");
       setNewTitle("");
@@ -226,7 +232,7 @@ export default function AdminPage() {
 
   const removeEvent = (index: number) => {
     const nextEvents = events.filter((_, currentIndex) => currentIndex !== index);
-    void saveAllEvents(nextEvents, "Event removed.");
+    void saveAllEvents(nextEvents, "Activity removed.");
   };
 
   const persistEdits = () => {
@@ -246,11 +252,11 @@ export default function AdminPage() {
       const defaults = await resetSchoolEventsInApi();
       setEvents(defaults);
       setStatusVariant("success");
-      setStatusMessage("Events reset to default DepEd list.");
+      setStatusMessage("Activities reset to default DepEd list.");
     } catch (error) {
       setStatusVariant("error");
       setStatusMessage(
-        error instanceof Error ? error.message : "Failed to reset events in the database.",
+        error instanceof Error ? error.message : "Failed to reset activities in the database.",
       );
     }
   };
@@ -261,7 +267,7 @@ export default function AdminPage() {
         <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
           <h1 className="text-xl font-semibold text-zinc-900">Admin Login</h1>
           <p className="mt-1 text-sm text-zinc-600">
-            Sign in to manage custom calendar events.
+            Sign in to manage custom calendar activities.
           </p>
 
           <form onSubmit={handleLogin} className="mt-5 space-y-4">
@@ -304,8 +310,7 @@ export default function AdminPage() {
           </form>
 
           <p className="mt-4 text-xs text-zinc-500">
-            Default credentials can be changed via NEXT_PUBLIC_ADMIN_USERNAME and
-            NEXT_PUBLIC_ADMIN_PASSWORD.
+            Authorized accounts: cid and sgod.
           </p>
         </section>
       </main>
@@ -317,9 +322,9 @@ export default function AdminPage() {
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-zinc-900">Admin Event Editor</h1>
+            <h1 className="text-2xl font-semibold text-zinc-900">Admin Activity Editor</h1>
             <p className="text-sm text-zinc-600">
-              Add, edit, and remove date-range events for the calendar.
+              Add, edit, and remove date-range activities for the calendar.
             </p>
           </div>
           <div className="flex gap-2">
@@ -341,25 +346,25 @@ export default function AdminPage() {
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-zinc-900">Add New Event</h2>
+        <h2 className="text-lg font-semibold text-zinc-900">Add New Activity</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-5">
           <input
             type="date"
             value={newStart}
             onChange={(event) => setNewStart(event.target.value)}
             className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none ring-zinc-900/20 focus:ring"
-            aria-label="Event Start"
+            aria-label="Activity Start"
           />
           <input
             type="date"
             value={newEnd}
             onChange={(event) => setNewEnd(event.target.value)}
             className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none ring-zinc-900/20 focus:ring"
-            aria-label="Event End"
+            aria-label="Activity End"
           />
           <input
             type="text"
-            placeholder="Event title"
+            placeholder="Activity title"
             value={newTitle}
             onChange={(event) => setNewTitle(event.target.value)}
             className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none ring-zinc-900/20 focus:ring"
@@ -377,17 +382,17 @@ export default function AdminPage() {
             onClick={addEvent}
             className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition enabled:hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300"
           >
-            Add Event
+            Add Activity
           </button>
         </div>
         <p className="mt-2 text-xs text-zinc-500">
-          Event Start must be on or before Event End.
+          Activity Start must be on or before Activity End.
         </p>
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900">Edit Existing Events</h2>
+          <h2 className="text-lg font-semibold text-zinc-900">Edit Existing Activities</h2>
           <div className="flex gap-2">
             <input
               ref={importInputRef}
@@ -441,7 +446,7 @@ export default function AdminPage() {
 
         <div className="mt-4 space-y-3">
           {events.length === 0 ? (
-            <p className="text-sm text-zinc-600">No events found.</p>
+            <p className="text-sm text-zinc-600">No activities found.</p>
           ) : (
             events.map((event, index) => (
               <article
@@ -456,7 +461,7 @@ export default function AdminPage() {
                       updateEvent(index, { start: inputEvent.target.value })
                     }
                     className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none ring-zinc-900/20 focus:ring"
-                    aria-label="Event Start"
+                    aria-label="Activity Start"
                   />
                   <input
                     type="date"
@@ -465,7 +470,7 @@ export default function AdminPage() {
                       updateEvent(index, { end: inputEvent.target.value })
                     }
                     className="rounded-lg border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none ring-zinc-900/20 focus:ring"
-                    aria-label="Event End"
+                    aria-label="Activity End"
                   />
                   <input
                     type="text"
