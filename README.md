@@ -46,6 +46,7 @@ App URLs:
 - `npm run build` - production build
 - `npm run start` - run production server after build
 - `npm run lint` - lint code
+- `npm run smoke` - smoke test homepage and `/api/events` (app must be running)
 - `npm run verify:admin-save` - verify admin add/save persists to DB via `/api/events`
 - `npm run prisma:generate` - regenerate Prisma client
 - `npm run prisma:push` - push schema changes to DB without migration files
@@ -65,6 +66,25 @@ npm run verify:admin-save
 ```
 
 The script will add a temporary test event through `/api/events`, verify it can be read back, then restore your original event list.
+
+### Smoke Test
+
+Run this fast smoke test when the app is already running:
+
+```bash
+npm run smoke
+```
+
+What it checks:
+
+1. Homepage is reachable.
+2. `/api/events` returns a valid `{ events: [] }` payload shape.
+
+Optional deep mode (includes the admin-save persistence flow):
+
+```bash
+SMOKE_DEEP=1 npm run smoke
+```
 
 ## Deploy Online (Vercel + Postgres)
 

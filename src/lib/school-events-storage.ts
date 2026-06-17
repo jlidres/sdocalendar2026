@@ -22,8 +22,15 @@ function isSchoolEvent(value: unknown): value is SchoolEvent {
     (hasRange || hasLegacyDate) &&
     typeof candidate.title === "string" &&
     candidate.title.trim().length > 0 &&
+    (typeof candidate.venue === "string" || typeof candidate.venue === "undefined") &&
+    (typeof candidate.targetParticipants === "string" ||
+      typeof candidate.targetParticipants === "undefined") &&
     (typeof candidate.notes === "string" || typeof candidate.notes === "undefined")
   );
+}
+
+function cleanText(value: unknown): string | undefined {
+  return typeof value === "string" ? value.trim() || undefined : undefined;
 }
 
 function normalizeSchoolEvent(event: SchoolEvent): SchoolEvent {
@@ -37,6 +44,8 @@ function normalizeSchoolEvent(event: SchoolEvent): SchoolEvent {
     start: normalizedStart,
     end: normalizedEnd,
     title: event.title.trim(),
+    venue: cleanText(event.venue),
+    targetParticipants: cleanText(event.targetParticipants),
     notes: event.notes?.trim() || undefined,
   };
 }

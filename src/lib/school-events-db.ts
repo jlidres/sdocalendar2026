@@ -17,6 +17,8 @@ function normalizeSchoolEvent(event: SchoolEvent): SchoolEvent {
     start: normalizedStart,
     end: normalizedEnd,
     title: event.title.trim(),
+    venue: event.venue?.trim() || undefined,
+    targetParticipants: event.targetParticipants?.trim() || undefined,
     notes: event.notes?.trim() || undefined,
   };
 }
@@ -72,6 +74,11 @@ export function parseSchoolEvents(value: unknown): SchoolEvent[] {
         start,
         end,
         title: candidate.title,
+        venue: typeof candidate.venue === "string" ? candidate.venue : undefined,
+        targetParticipants:
+          typeof candidate.targetParticipants === "string"
+            ? candidate.targetParticipants
+            : undefined,
         notes: typeof candidate.notes === "string" ? candidate.notes : undefined,
       });
 
@@ -109,6 +116,8 @@ export async function listSchoolEvents(): Promise<SchoolEvent[]> {
     start: row.start,
     end: row.end,
     title: row.title,
+    venue: row.venue ?? undefined,
+    targetParticipants: row.targetParticipants ?? undefined,
     notes: row.notes ?? undefined,
   }));
 }

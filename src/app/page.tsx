@@ -18,12 +18,6 @@ const DISPLAY_DATE = new Intl.DateTimeFormat("en-PH", {
   day: "numeric",
 });
 
-const COUNTDOWN_DATE = new Intl.DateTimeFormat("en-PH", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-});
-
 const MONTH_TITLE = new Intl.DateTimeFormat("en-PH", {
   month: "long",
   year: "numeric",
@@ -44,20 +38,6 @@ function parseISODateToLocal(dateString: string): Date {
 
 function isWithinDateRange(target: Date, start: Date, end: Date): boolean {
   return target >= start && target <= end;
-}
-
-function getTimeLeft(target: Date, now: Date) {
-  const totalMs = target.getTime() - now.getTime();
-  if (totalMs <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-  }
-
-  const days = Math.floor(totalMs / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((totalMs / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((totalMs / (1000 * 60)) % 60);
-  const seconds = Math.floor((totalMs / 1000) % 60);
-
-  return { days, hours, minutes, seconds };
 }
 
 const BLOCK_COLORS: Record<BlockType, string> = {
@@ -117,10 +97,6 @@ export default function Home() {
     );
   }, [now]);
 
-  const term1StartDate = useMemo(() => parseISODateToLocal("2026-06-08"), []);
-
-  const countdown = useMemo(() => getTimeLeft(term1StartDate, now), [term1StartDate, now]);
-
   const parsedBlocks = useMemo(
     () =>
       DEPED_SY_2026_2027_TERMS.flatMap((term) =>
@@ -133,6 +109,15 @@ export default function Home() {
       ),
     [],
   );
+
+  const currentDateBlock = useMemo(() => {
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    return (
+      parsedBlocks.find((block) => isWithinDateRange(today, block.startDate, block.endDate)) ??
+      null
+    );
+  }, [now, parsedBlocks]);
 
   const monthLabel = useMemo(() => MONTH_TITLE.format(viewedMonth), [viewedMonth]);
 
@@ -206,24 +191,19 @@ export default function Home() {
     [eventLookup],
   );
 
-  const currentMonthStart = useMemo(
-    () => new Date(now.getFullYear(), now.getMonth(), 1),
+  const todayDate = useMemo(
+    () => new Date(now.getFullYear(), now.getMonth(), now.getDate()),
     [now],
   );
 
   const upcomingEvents = useMemo(
-    () => listedEvents.filter((event) => event.endDate >= currentMonthStart),
-    [listedEvents, currentMonthStart],
+    () => listedEvents.filter((event) => event.startDate > todayDate),
+    [listedEvents, todayDate],
   );
 
   const displayedUpcomingActivities = useMemo(
     () => upcomingEvents.slice(0, 5),
     [upcomingEvents],
-  );
-
-  const todayDate = useMemo(
-    () => new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-    [now],
   );
 
   const todayActivities = useMemo(
@@ -242,7 +222,7 @@ export default function Home() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-10">
+    <main className="mx-auto flex w-full max-w-full flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:max-w-[66.666vw] lg:px-0">
       <section className="rounded-3xl border border-white/50 bg-white/90 p-6 shadow-sm backdrop-blur-md sm:p-8">
         <p className="text-sm font-medium uppercase tracking-[0.16em] text-amber-700">
           DepED - SDO San Juan City
@@ -281,13 +261,15 @@ export default function Home() {
 
         <article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
           <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
-            Countdown
+            Current Block
           </h2>
-          <p className="mt-2 text-sm font-medium text-zinc-700">
-            Start of Term 1 ({COUNTDOWN_DATE.format(term1StartDate)})
+          <p className="mt-2 text-lg font-semibold text-zinc-900 sm:text-xl">
+            {currentDateBlock ? currentDateBlock.label : "No active block"}
           </p>
-          <p className="mt-2 text-xl font-semibold text-zinc-900 sm:text-2xl">
-            {countdown.days}d {countdown.hours}h {countdown.minutes}m {countdown.seconds}s
+          <p className="mt-1 text-sm text-zinc-600">
+            {currentDateBlock
+              ? `${currentDateBlock.termName} • ${DISPLAY_DATE.format(now)}`
+              : `No scheduled block for ${DISPLAY_DATE.format(now)}`}
           </p>
         </article>
       </section>

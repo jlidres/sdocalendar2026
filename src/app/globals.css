@@ -20,10 +20,7 @@
 }
 
 body {
-  background:
-    radial-gradient(circle at 12% 12%, #fff6d8 0%, transparent 32%),
-    radial-gradient(circle at 88% 20%, #e9f7e6 0%, transparent 30%),
-    linear-gradient(180deg, #fffcf1 0%, #f9fff8 44%, #fff8ef 100%);
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), "Segoe UI", sans-serif;
 }

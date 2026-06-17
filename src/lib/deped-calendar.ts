@@ -32,6 +32,8 @@ export type SchoolEvent = {
   start: string;
   end: string;
   title: string;
+  venue?: string;
+  targetParticipants?: string;
   notes?: string;
   date?: string;
 };
