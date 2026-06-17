@@ -175,6 +175,8 @@ export default function Home() {
 
         return {
           title: event.title,
+          venue: event.venue,
+          targetParticipants: event.targetParticipants,
           notes: event.notes,
           startDate: normalizedStart,
           endDate: normalizedEnd,
@@ -307,11 +309,21 @@ export default function Home() {
                     key={`today-${item.title}-${item.startDate.toISOString()}-${item.endDate.toISOString()}`}
                     className="rounded-lg border border-amber-200 bg-white px-3 py-2"
                   >
-                    <p className="text-sm font-semibold text-zinc-900">{item.title}</p>
+                    <p className="text-sm text-zinc-700">
+                      <span className="font-semibold text-zinc-900">Activity Title:</span> {item.title}
+                    </p>
                     <p className="text-xs text-zinc-600">
+                      <span className="font-semibold text-zinc-800">Date:</span>{" "}
                       {isSingleDay
                         ? EVENT_DATE.format(item.startDate)
                         : `${EVENT_DATE.format(item.startDate)} - ${EVENT_DATE.format(item.endDate)}`}
+                    </p>
+                    <p className="text-xs text-zinc-600">
+                      <span className="font-semibold text-zinc-800">Venue:</span> {item.venue ?? "TBA"}
+                    </p>
+                    <p className="text-xs text-zinc-600">
+                      <span className="font-semibold text-zinc-800">Target Participants:</span>{" "}
+                      {item.targetParticipants ?? "TBA"}
                     </p>
                     {item.notes ? <p className="mt-1 text-xs text-zinc-500">{item.notes}</p> : null}
                   </article>
@@ -342,11 +354,21 @@ export default function Home() {
                   key={`${item.title}-${item.startDate.toISOString()}-${item.endDate.toISOString()}`}
                   className="rounded-xl border border-zinc-200 px-3 py-2"
                 >
-                  <p className="text-sm font-semibold text-zinc-900">{item.title}</p>
+                  <p className="text-sm text-zinc-700">
+                    <span className="font-semibold text-zinc-900">Activity Title:</span> {item.title}
+                  </p>
                   <p className="text-xs text-zinc-600">
+                    <span className="font-semibold text-zinc-800">Date:</span>{" "}
                     {isSingleDay
                       ? EVENT_DATE.format(item.startDate)
                       : `${EVENT_DATE.format(item.startDate)} - ${EVENT_DATE.format(item.endDate)}`}
+                  </p>
+                  <p className="text-xs text-zinc-600">
+                    <span className="font-semibold text-zinc-800">Venue:</span> {item.venue ?? "TBA"}
+                  </p>
+                  <p className="text-xs text-zinc-600">
+                    <span className="font-semibold text-zinc-800">Target Participants:</span>{" "}
+                    {item.targetParticipants ?? "TBA"}
                   </p>
                   {item.notes ? (
                     <p className="mt-1 text-xs text-zinc-500">{item.notes}</p>
