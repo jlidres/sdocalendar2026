@@ -53,6 +53,17 @@ App URLs:
 - `npm run prisma:migrate` - create/apply migration in development
 - `npm run prisma:deploy` - apply existing Prisma migrations in production
 
+## Wiki
+
+Repository wiki pages are available in `/wiki`:
+
+- `wiki/Home.md`
+- `wiki/Setup-and-Development.md`
+- `wiki/Architecture.md`
+- `wiki/API-Reference.md`
+- `wiki/Admin-Guide.md`
+- `wiki/Troubleshooting.md`
+
 ### Pre-deploy Save Verification
 
 Use this quick smoke test to verify the Admin "Add Event" flow really persists to PostgreSQL:
